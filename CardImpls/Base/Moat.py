@@ -16,7 +16,7 @@ class Moat(Card):
     def get_types(self):
         return [Card.ACTION, Card.REACTION]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
         for i in range(2):
             player.draw_card()

@@ -16,9 +16,10 @@ class Cellar(Card):
     def get_types(self):
         return [Card.ACTION]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         cards_by_name = map(lambda x: x.get_name(), player.hand)
-        cards_to_discard = cards_by_name.count("Estate") + cards_by_name.count("Copper") + cards_by_name.count("Curse")
+        victory_cards = sum(map(lambda x: 1 if Card.VICTORY in x.get_types() and Card.ACTION not in x.get_types() else 0, player.hand))
+        cards_to_discard = cards_by_name.count("Copper") + cards_by_name.count("Curse") + victory_cards
         for i in range(cards_to_discard):
             discard_card_from_hand(player)
         for i in range(cards_to_discard):

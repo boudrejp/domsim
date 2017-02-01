@@ -18,6 +18,8 @@ class TurnInfo:
         self.cost_reductions = 0
         self.action_only_cost_reductions = 0
 
+        self.first_silver_played = False
+
     def add_money(self, amount):
         self.money += amount
 

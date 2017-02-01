@@ -16,7 +16,7 @@ class Market(Card):
     def get_types(self):
         return [Card.ACTION]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         for i in range(1):
             player.draw_card()
         player.turn_info.add_money(1)

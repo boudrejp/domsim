@@ -1,6 +1,7 @@
 __author__ = 'breppert'
 
 from Card import Card
+from Interactions.PlayerStateInteractions import *
 
 class Silver(Card):
     def __init__(self):
@@ -15,8 +16,10 @@ class Silver(Card):
     def get_types(self):
         return [Card.TREASURE]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.add_money(2)
+        do_merchant(player)
+
 
     def economy(self):
         return 2

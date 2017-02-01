@@ -6,6 +6,7 @@ from TurnInfo import TurnInfo
 from Util import PlayHelper
 from Config import *
 from Util.SupplyAnalyzer import *
+from Util.DeckAnalyzer import *
 
 class Player(object):
     '''
@@ -72,39 +73,51 @@ class Player(object):
             if len(action_cards) == 0:
                 return
             else:
-                villages = PlayHelper.get_villages(self.hand)
-                cantrips = PlayHelper.get_cantrips(self.hand)
-                non_terminal_draw = PlayHelper.get_non_terminal_draw(self.hand)
-                terminal_draw = PlayHelper.get_terminal_draw(self.hand)
-                terminal_payload = PlayHelper.get_terminal_payload(self.hand)
-                sifters = PlayHelper.get_sifters(self.hand)
+                action_to_play = self.get_action_card_to_play_next()
+                if action_to_play is not None:
+                    self.play_card(action_to_play)
 
-                #current basic play order:
-                # 1) non-terminal draw
-                # 2) villages
-                # 3) terminal draw, if you have the actions for it to not be dead
-                # 4) cantrips
-                # 5) sifters (non-terminal)
-                # 6) terminal payload
-                # 7) dead terminal draw
-                # 8) any other actions
 
-                if len(non_terminal_draw) >= 1:
-                    self.play_card(non_terminal_draw[0])
-                elif len(villages) >= 1:
-                    self.play_card(villages[0])
-                elif self.turn_info.actions >= 2 and len(terminal_draw) >= 1:
-                    self.play_card(terminal_draw[0])
-                elif len(cantrips) >= 1:
-                    self.play_card(cantrips[0])
-                elif len(sifters) >= 1:
-                    self.play_card(sifters[0])
-                elif len(terminal_payload) >= 1:
-                    self.play_card(terminal_payload[0])
-                elif len(terminal_draw) >= 1:
-                    self.play_card(terminal_draw[0])
-                elif len(action_cards) >= 1:
-                    self.play_card(action_cards[0])
+    def get_action_card_to_play_next(self):
+        action_cards = PlayHelper.get_actions(self.hand)
+
+        villages = PlayHelper.get_villages(self.hand)
+        cantrips = PlayHelper.get_cantrips(self.hand)
+        non_terminal_draw = PlayHelper.get_non_terminal_draw(self.hand)
+        terminal_draw = PlayHelper.get_terminal_draw(self.hand)
+        terminal_payload = PlayHelper.get_terminal_payload(self.hand)
+        sifters = PlayHelper.get_sifters(self.hand)
+
+        #current basic play order:
+        # 1) non-terminal draw
+        # 2) villages
+        # 3) terminal draw, if you have the actions for it to not be dead
+        # 4) cantrips
+        # 5) sifters (non-terminal)
+        # 6) terminal payload
+        # 7) dead terminal draw
+        # 8) any other actions
+
+        action_to_play = None
+
+        if len(non_terminal_draw) >= 1:
+            action_to_play = non_terminal_draw[0]
+        elif len(villages) >= 1:
+            action_to_play = villages[0]
+        elif self.turn_info.actions >= 2 and len(terminal_draw) >= 1:
+            action_to_play = terminal_draw[0]
+        elif len(cantrips) >= 1:
+            action_to_play = cantrips[0]
+        elif len(sifters) >= 1:
+            action_to_play = sifters[0]
+        elif len(terminal_payload) >= 1:
+            action_to_play = terminal_payload[0]
+        elif len(terminal_draw) >= 1:
+            action_to_play = terminal_draw[0]
+        elif len(action_cards) >= 1:
+            action_to_play = action_cards[0]
+
+        return action_to_play
 
 
     def play_buy_phase(self):
@@ -135,7 +148,7 @@ class Player(object):
         supply = self.game.supply
 
         while (self.turn_info.buys >= 1):
-            if self.can_buy("Province", money):
+            if self.can_buy("Province", money) and get_total_economy(self) >= 18:
                 return "Province"
             elif self.can_buy("Duchy", money) and get_pile_size("Province", supply) <= 5:
                 return "Duchy"

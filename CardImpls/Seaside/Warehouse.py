@@ -18,7 +18,7 @@ class Warehouse(Card):
     def get_types(self):
         return [Card.ACTION]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         for i in range(3):
             player.draw_card()
         for i in range(3):

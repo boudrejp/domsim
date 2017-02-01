@@ -15,7 +15,7 @@ class Copper(Card):
     def get_types(self):
         return [Card.TREASURE]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.add_money(1)
 
     def economy(self):

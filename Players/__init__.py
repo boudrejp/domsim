@@ -5,3 +5,5 @@ import EngineMan
 import CardTestingPlayer
 import AmuletPlayer
 import JackPlayer
+import ClassicDurationEngine
+import SentryPlayer

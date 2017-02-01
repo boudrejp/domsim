@@ -33,6 +33,7 @@ class Card (object):
     def __init__(self):
         pass
 
+    #### Functions for actual functional play of the cards
     def get_types(self):
         return []
 
@@ -45,7 +46,11 @@ class Card (object):
     def get_victory_points(self, player, opposing_player):
         return 0
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type=None):
+        '''
+        Once you've decided to play the card, actually plays the card with all play logic.
+        You can specify play type for some cards, i.e. the "Engine" option for Sentry will trash more agressively than "Money"
+        '''
         pass
 
     def duration_card(self, game, player, opposing_player):
@@ -76,6 +81,11 @@ class Card (object):
 
     def on_discard(self, game, player, opposing_player):
         ## Returns True if the trash should continue as normal, or False if there were special rules acted out
+        return True
+
+    def can_play_for_benefit(self, game, player, opposing_player):
+        #Returns True if the card can be usefully played. I.e. Junk Dealer will return False if no junk in hand.
+        #Still needs to be implemented on many cards
         return True
 
     #Some helper functions to help play order
@@ -113,6 +123,9 @@ class Card (object):
     def trashes(self):
         return False
 
+    def is_compulsive_trasher(self):
+        return False
+
     def economy(self):
         return 0
 
@@ -124,12 +137,12 @@ class Card (object):
 
     def card_goodness(self):
         '''
-        Arbitrary, scale of 0-10
+        Arbitrary, scale of 0-10, not sure if this is actually useful
         '''
         return 0
 
     def get_categories(self):
-        return []
+        return [] #This is potentially redundant to the above functions, but, uh, it won't hurt.
 
     def trashes_estates(self):
         return False

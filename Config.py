@@ -1,4 +1,4 @@
 __author__ = 'breppert'
 
-LOGGING = False
+LOGGING = True
 DEEP_LOGGING = False

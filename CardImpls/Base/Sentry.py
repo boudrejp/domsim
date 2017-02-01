@@ -2,6 +2,7 @@ __author__ = 'breppert'
 
 from Card import Card
 from Util.DeckAnalyzer import *
+from Util.SupplyAnalyzer import *
 
 
 
@@ -21,13 +22,17 @@ class Sentry(Card):
     def get_types(self):
         return [Card.ACTION]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type="Money"):
         revealed_cards = player.reveal_cards(2)
         cards_to_put_back = []
         cards_to_discard = []
         for i, card in enumerate(revealed_cards):
             if card.get_name() == "Estate" or card.get_name() == "Curse":
-                player.trash_card(card, "deck")
+                #In a money game, don't trash Estates any longer if the province pile is below 5
+                if play_type == "Money" and card.get_name() == "Estate" and get_pile_size("Province", game.supply) < 5:
+                    cards_to_discard.append(card)
+                else:
+                    player.trash_card(card, "deck")
             elif card.get_name() == "Copper" and get_total_economy(player) > 4:
                 player.trash_card(card, "deck")
             else:

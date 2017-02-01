@@ -18,7 +18,7 @@ class Militia(Card):
     def get_types(self):
         return [Card.ACTION, Card.ATTACK]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
         player.turn_info.add_money(2)
 

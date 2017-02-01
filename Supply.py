@@ -7,6 +7,7 @@ from CardImpls.Prosperity import *
 from CardImpls.DarkAges import *
 from CardImpls.Adventures import *
 from CardImpls.Hinterlands import *
+from CardImpls.Intrigue import *
 
 class Supply:
     def __init__(self):
@@ -49,6 +50,12 @@ class Supply:
         self._create_pile(10, JunkDealer.JunkDealer())
         self._create_pile(10, Amulet.Amulet())
         self._create_pile(10, JackOfAllTrades.JackOfAllTrades())
+        self._create_pile(10, Merchant.Merchant())
+        self._create_pile(10, Wharf.Wharf())
+        self._create_pile(10, Bridge.Bridge())
+        self._create_pile(10, FishingVillage.FishingVillage())
+        self._create_pile(10, Caravan.Caravan())
+        self._create_pile(10, Dungeon.Dungeon())
 
     def get_non_empty_pile_names(self):
         non_empty_pile_names = []

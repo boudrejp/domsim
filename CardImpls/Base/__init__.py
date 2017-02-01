@@ -10,3 +10,4 @@ import Sentry
 import Moat
 import Poacher
 import Cellar
+import Merchant

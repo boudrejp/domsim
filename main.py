@@ -2,11 +2,12 @@ __author__ = 'breppert'
 
 import Game
 from Players import *
+from Player import *
 
 winner_list = []
 
-for i in range(1000):
-    game = Game.Game("Jacker", "Amuleteer", JackPlayer.JackPlayer, AmuletPlayer.AmuletPlayer)
+for i in range(1):
+    game = Game.Game("Jacker", "Mariner", SentryPlayer.SentryPlayer, Player)
     winner = game.play_game()
     winner_list.append(winner)
     if i % 100 == 0:
@@ -14,5 +15,5 @@ for i in range(1000):
 
 print "=" * 20
 print "Jacker wins: %s" % winner_list.count("Jacker")
-print "Amuleteer wins: %s" % winner_list.count("Amuleteer")
+print "Mariner wins: %s" % winner_list.count("Mariner")
 print "Ties: %s" % winner_list.count("Tie!")

@@ -21,7 +21,7 @@ class JackOfAllTrades(Card):
     def get_types(self):
         return [Card.ACTION]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
 
         money_this_turn = get_treasures_dollars_in_hand(player.hand) + player.turn_info.money
@@ -85,7 +85,6 @@ class JackOfAllTrades(Card):
 
 
     ### Subjective Information ###
-
     def card_goodness(self):
         return 7
 

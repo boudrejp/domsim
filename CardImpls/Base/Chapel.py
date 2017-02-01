@@ -2,6 +2,7 @@ __author__ = 'breppert'
 
 from Card import Card
 from Util.DeckAnalyzer import *
+from CardImpls.Helper.util import *
 
 
 class Chapel(Card):
@@ -17,19 +18,10 @@ class Chapel(Card):
     def get_types(self):
         return [Card.ACTION]
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
         for i in range(4):
-            for card in player.hand:
-                if card.get_name() == "Estate":
-                    player.trash_card(card, "hand")
-                    break
-                elif card.get_name() == "Curse":
-                    player.trash_card(card, "hand")
-                    break
-                elif card.get_name() == "Copper" and get_total_economy(player) > 4:
-                    player.trash_card(card, "hand")
-                    break
+            trash_card_from_hand(player, False)
 
     def is_terminal(self):
         return True
