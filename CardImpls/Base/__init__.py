@@ -11,3 +11,8 @@ import Moat
 import Poacher
 import Cellar
 import Merchant
+import Mine
+import Gardens
+import Witch
+import Festival
+import ThroneRoom

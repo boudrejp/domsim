@@ -1,6 +1,7 @@
 __author__ = 'breppert'
 
 from Card import Card
+from Config import *
 
 
 class Workshop(Card):
@@ -19,8 +20,9 @@ class Workshop(Card):
     def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
 
-        card_to_gain = player.get_card_to_buy(4, 1, True)
-        print "%s Gaining %s" % (player.player_name, card_to_gain)
+        card_to_gain = player.get_card_to_buy(4, 1, True, "Workshop")
+        if LOGGING:
+            print "%s Gaining %s" % (player.player_name, card_to_gain)
         player.gain_card(card_to_gain, "discard")
 
     def card_goodness(self):

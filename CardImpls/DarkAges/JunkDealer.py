@@ -21,7 +21,7 @@ class JunkDealer(Card):
     def play_card(self, game, player, opposing_player, play_type = None):
         player.draw_card()
         player.turn_info.add_money(1)
-        trash_card_from_hand(player, True)
+        trash_card_from_hand(self, player, True)
 
 
     def is_terminal(self):
@@ -36,6 +36,12 @@ class JunkDealer(Card):
             if card.get_name() == "Copper" or card.get_name() == "Estate" or card.get_name() == "Curse":
                 trash_candidates += 1
         return trash_candidates
+
+    def can_play_for_benefit(self, game, player, opposing_player):
+        if get_total_cards_wanted_to_trash_from_hand(self, player) >= 1:
+            return True
+        else:
+            return False
 
 
     def trashes(self):

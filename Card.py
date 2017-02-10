@@ -23,10 +23,12 @@ class Card (object):
     TRASHER = "Trasher"
     POINTS = "Points"
     JUNK = "Junk"
+    THRONE_VARIANT = "Throne Variant"
     BUYS = "Buys"
     SIFTER = "Sifter"
     TERMINAL_PAYLOAD_NONSTACKING = "Terminal Payload - Non-stacking"
     TERMINAL_PAYLOAD_STACKING = "Terminal Payload - Stacking"
+    JUNKER = "Junker"
 
 
 
@@ -42,6 +44,18 @@ class Card (object):
 
     def get_cost(self):
         return 0
+
+    def get_potion_cost(self):
+        return 0
+
+    def get_debt(self):
+        return 0
+
+    def can_overpay(self):
+        return False
+
+    def do_overpay(self, player, opposing_player, overpay_amount):
+        pass
 
     def get_victory_points(self, player, opposing_player):
         return 0
@@ -108,9 +122,6 @@ class Card (object):
     def draws_to_x(self):
         return False
 
-    def is_throne_variant(self):
-        return False
-
     def junks(self, supply):
         return False
 
@@ -121,6 +132,9 @@ class Card (object):
         return False
 
     def trashes(self):
+        return False
+
+    def sifts_from_deck(self):
         return False
 
     def is_compulsive_trasher(self):
@@ -141,12 +155,13 @@ class Card (object):
         '''
         return 0
 
+
     def get_categories(self):
         return [] #This is potentially redundant to the above functions, but, uh, it won't hurt.
 
     def trashes_estates(self):
-        return False
+        return True
 
     def trashes_coppers(self):
-        return False
+        return True
     ####

@@ -40,6 +40,9 @@ class FishingVillage(Card):
     def is_village(self):
         return True
 
+    def economy(self):
+        return 1.5
+
     ### Subjective information ###
     def card_goodness(self):
         return 8

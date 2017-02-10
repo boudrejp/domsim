@@ -20,7 +20,7 @@ class Dungeon(Card):
         return [Card.ACTION, Card.DURATION]
 
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = None):
         self.duration_finished = False
         for i in range(2):
            player.draw_card()
@@ -35,9 +35,17 @@ class Dungeon(Card):
     def should_duration(self):
         return not self.duration_finished
 
+    def is_sifter(self):
+        return True
+
     ### Subjective information ###
     def card_goodness(self):
         return 7
 
     def get_categories(self):
         return [Card.SIFTER]
+
+    def can_play_for_benefit(self, game, player, opposing_player):
+        if (len(player.deck) + len(player.discard)) <= 1:
+            return False
+        return True

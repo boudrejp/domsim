@@ -21,7 +21,7 @@ class Chapel(Card):
     def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
         for i in range(4):
-            trash_card_from_hand(player, False)
+            trash_card_from_hand(self, player, False)
 
     def is_terminal(self):
         return True
@@ -32,9 +32,15 @@ class Chapel(Card):
     def trashes_from_hand(self, player):
         trash_candidates = 0
         for card in player.hand:
-            if card.get_name() == "Copper" or card.get_name() == "Estate" or card.get_name("Curse"):
+            if card.get_name() == "Copper" or card.get_name() == "Estate" or card.get_name() == "Curse":
                 trash_candidates += 1
         return trash_candidates
+
+    def can_play_for_benefit(self, game, player, opposing_player):
+        if get_total_cards_wanted_to_trash_from_hand(self, player) >= 1:
+            return True
+        else:
+            return False
 
 
     def trashes(self):

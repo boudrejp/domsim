@@ -23,7 +23,7 @@ class Amulet(Card):
         return [Card.ACTION, Card.DURATION]
 
 
-    def play_card(self, game, player, opposing_player):
+    def play_card(self, game, player, opposing_player, play_type = "Money"):
         self.duration_finished = False
         player.turn_info.actions -= 1
         money_this_turn = get_treasures_dollars_in_hand(player.hand) + player.turn_info.money

@@ -29,11 +29,8 @@ class Militia(Card):
     def is_terminal(self):
         return True
 
-    def draws(self, hand = None):
-        return 3
-
     def card_goodness(self):
-        return 4
+        return 5
 
     def economy(self):
         return 2

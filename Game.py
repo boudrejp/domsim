@@ -13,15 +13,18 @@ class Game:
     Contains everything needed for a two player game of Dominion
     '''
 
-    def __init__(self, player_one_name, player_two_name, player_one_class, player_two_class):
-        self.__setup__(player_one_name, player_two_name, player_one_class, player_two_class)
+    def __init__(self, player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one = None, starting_cards_two = None):
+        self.__setup__(player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one, starting_cards_two)
         self.supply = Supply()
         self.turn_number = 1
         self.trash = []
 
 
-    def play_game(self):
-        players_turn = choice([1,2])
+    def play_game(self, first_player = None, stop_on_turn = None):
+        if first_player is None:
+            players_turn = choice([1,2])
+        else:
+            players_turn = first_player
         first_player = players_turn
         players_played_this_turn = 0
         while (not self.game_is_over()):
@@ -40,6 +43,11 @@ class Game:
             if players_played_this_turn >= 2:
                 self.turn_number += 1
                 players_played_this_turn = 0
+
+            if stop_on_turn is None:
+                pass
+            elif self.turn_number >= stop_on_turn:
+                return
 
         winner = self.get_winner(first_player, players_played_this_turn)
         return winner
@@ -93,10 +101,16 @@ class Game:
 
         return starting_cards
 
-    def __setup__(self, player_one_name, player_two_name, player_one_class, player_two_class):
+    def __setup__(self, player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one, starting_cards_two):
         self.Trash = []
-        self.player_one = player_one_class(self, player_one_name, self.get_starting_cards())
-        self.player_two = player_two_class(self, player_two_name, self.get_starting_cards())
+        if starting_cards_one is None:
+            self.player_one = player_one_class(self, player_one_name, self.get_starting_cards(), player_one_stats)
+        else:
+            self.player_one = player_one_class(self, player_one_name, starting_cards_one, player_one_stats)
+        if starting_cards_two is None:
+            self.player_two = player_two_class(self, player_two_name, self.get_starting_cards(), player_two_stats)
+        else:
+            self.player_two = player_two_class(self, player_two_name, starting_cards_two, player_two_stats)
 
         self.player_one.add_opposing_player(self.player_two)
         self.player_two.add_opposing_player(self.player_one)

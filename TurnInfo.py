@@ -18,6 +18,9 @@ class TurnInfo:
         self.cost_reductions = 0
         self.action_only_cost_reductions = 0
 
+        self.overpay = 0 #Hacky way to handle over-pay where it's state driven
+        # I do it this way to avoid cluttering the buying interface
+
         self.first_silver_played = False
 
     def add_money(self, amount):
@@ -28,3 +31,12 @@ class TurnInfo:
             return self.action_only_cost_reductions + self.cost_reductions
         else:
             return self.cost_reductions
+
+    def set_overpay(self, overpay_amount):
+        self.overpay = overpay_amount
+
+    def get_overpay(self):
+        return self.overpay
+
+    def reset_overpay(self):
+        self.overpay = 0

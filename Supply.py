@@ -8,6 +8,10 @@ from CardImpls.DarkAges import *
 from CardImpls.Adventures import *
 from CardImpls.Hinterlands import *
 from CardImpls.Intrigue import *
+from CardImpls.Empires import *
+from CardImpls.Alchemy import *
+from CardImpls.Cornucoppia import *
+from CardImpls.Guilds import *
 
 class Supply:
     def __init__(self):
@@ -25,6 +29,8 @@ class Supply:
         self._create_pile(46, Copper.Copper())
 
         self._create_pile(10, Curse.Curse())
+
+        self._create_pile(14, Potion.Potion())
 
 
     def _create_pile(self, number, object):
@@ -56,6 +62,38 @@ class Supply:
         self._create_pile(10, FishingVillage.FishingVillage())
         self._create_pile(10, Caravan.Caravan())
         self._create_pile(10, Dungeon.Dungeon())
+        self._create_pile(10, Ironworks.Ironworks())
+        self._create_pile(10, Mine.Mine())
+        self._create_pile(10, TradingPost.TradingPost())
+        self._create_pile(10, BorderVillage.BorderVillage())
+        self._create_pile(10, SeaHag.SeaHag())
+        self._create_pile(10, Forager.Forager())
+        self._create_pile(8, SilkRoad.SilkRoad())
+        self._create_pile(8, Gardens.Gardens())
+        self._create_pile(14, Platinum.Platinum())
+        self._create_pile(8, Colony.Colony())
+        self._create_pile(10, Oasis.Oasis())
+        self._create_pile(8, Tunnel.Tunnel())
+        self._create_pile(10, Cartographer.Cartographer())
+        self._create_pile(10, RoyalBlacksmith.RoyalBlacksmith())
+        self._create_pile(10, Patrol.Patrol())
+        self._create_pile(10, WorkersVillage.WorkersVillage())
+        self._create_pile(10, WanderingMinstrel.WanderingMinstrel())
+        self._create_pile(10, Haggler.Haggler())
+        self._create_pile(10, Apothecary.Apothecary())
+        self._create_pile(10, Familiar.Familiar())
+        self._create_pile(10, Witch.Witch())
+        self._create_pile(10, Goons.Goons())
+        self._create_pile(10, HuntingGrounds.HuntingGrounds())
+        self._create_pile(10, Festival.Festival())
+        self._create_pile(10, Sage.Sage())
+        self._create_pile(10, HuntingParty.HuntingParty())
+        self._create_pile(10, FarmingVillage.FarmingVillage())
+        self._create_pile(10, Herald.Herald())
+        self._create_pile(10, Doctor.Doctor())
+        self._create_pile(10, ThroneRoom.ThroneRoom())
+        self._create_pile(10, ChariotRace.ChariotRace())
+        self._create_pile(10, Explorer.Explorer())
 
     def get_non_empty_pile_names(self):
         non_empty_pile_names = []

@@ -1,9 +1,8 @@
 __author__ = 'breppert'
 
-import MoneyMan
 import EngineMan
 import CardTestingPlayer
-import AmuletPlayer
-import JackPlayer
+import WharfPlayer
 import ClassicDurationEngine
-import SentryPlayer
+import ClassicDurationEngine2
+import StandardEngine

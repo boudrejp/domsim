@@ -7,13 +7,20 @@ from Util import PlayHelper
 from Config import *
 from Util.SupplyAnalyzer import *
 from Util.DeckAnalyzer import *
+from Interactions.PlayerStateInteractions import *
+from MetaSim import PlayerStats
+
+
+from CardImpls.Base import *
+from CardImpls.Seaside import *
+from CardImpls.Adventures import * #Temporary hackery
 
 class Player(object):
     '''
     Contains the deck, discard, hand, and (various) set aside cards for a player
     '''
 
-    def __init__(self, game, player_name, starting_cards):
+    def __init__(self, game, player_name, starting_cards, player_stats):
         self.game = game
         self.player_name = player_name
         self.deck = starting_cards
@@ -23,10 +30,16 @@ class Player(object):
         self.play_area = []
         self.duration_area = []
 
+        self.victory_chips = 0
+        self.debt = 0
+
         self.draw_starting_hand()
         self.turn_info = TurnInfo()
 
         self.opposing_player = None
+
+        self.meta_stats = player_stats
+        self.meta_stats.start_new_game()
 
     def add_opposing_player(self, opposing_player):
         self.opposing_player = opposing_player
@@ -73,22 +86,28 @@ class Player(object):
             if len(action_cards) == 0:
                 return
             else:
-                action_to_play = self.get_action_card_to_play_next()
+                action_to_play, play_instruction = self.get_action_card_to_play_next()
                 if action_to_play is not None:
-                    self.play_card(action_to_play)
+                    self.play_card(action_to_play, play_instruction)
+                else:
+                    break
 
 
     def get_action_card_to_play_next(self):
-        action_cards = PlayHelper.get_actions(self.hand)
+        action_cards = PlayHelper.get_actions_that_can_be_played_usefully(self)
 
-        villages = PlayHelper.get_villages(self.hand)
-        cantrips = PlayHelper.get_cantrips(self.hand)
-        non_terminal_draw = PlayHelper.get_non_terminal_draw(self.hand)
-        terminal_draw = PlayHelper.get_terminal_draw(self.hand)
-        terminal_payload = PlayHelper.get_terminal_payload(self.hand)
-        sifters = PlayHelper.get_sifters(self.hand)
+        doublers = PlayHelper.get_throne_variants(action_cards)
+        villages = PlayHelper.get_villages(action_cards)
+        cantrips = PlayHelper.get_cantrips(action_cards)
+        non_terminal_draw = PlayHelper.get_non_terminal_draw(action_cards)
+        terminal_draw = PlayHelper.get_terminal_draw(action_cards)
+        terminal_payload = PlayHelper.get_terminal_payload(action_cards)
+        sifters = PlayHelper.get_sifters(action_cards)
+        gainers = PlayHelper.get_gainers(action_cards)
+        from_deck_sifters = PlayHelper.get_from_deck_sifters(action_cards)
 
         #current basic play order:
+        # 0) Sifters that sift the deck
         # 1) non-terminal draw
         # 2) villages
         # 3) terminal draw, if you have the actions for it to not be dead
@@ -99,81 +118,129 @@ class Player(object):
         # 8) any other actions
 
         action_to_play = None
-
-        if len(non_terminal_draw) >= 1:
-            action_to_play = non_terminal_draw[0]
+        if len(doublers) >= 1:
+            action_to_play = get_max_goodness(doublers)
+        elif len(from_deck_sifters) >= 1:
+            action_to_play = get_max_goodness(from_deck_sifters)
+        elif len(non_terminal_draw) >= 1:
+            action_to_play = get_max_goodness(non_terminal_draw)
         elif len(villages) >= 1:
-            action_to_play = villages[0]
-        elif self.turn_info.actions >= 2 and len(terminal_draw) >= 1:
-            action_to_play = terminal_draw[0]
+            action_to_play = get_max_goodness(villages)
         elif len(cantrips) >= 1:
-            action_to_play = cantrips[0]
+            action_to_play = get_max_goodness(cantrips)
+        elif self.turn_info.actions >= 2 and len(terminal_draw) >= 1:
+            action_to_play = get_max_goodness(terminal_draw)
         elif len(sifters) >= 1:
-            action_to_play = sifters[0]
+            action_to_play = get_max_goodness(sifters)
         elif len(terminal_payload) >= 1:
-            action_to_play = terminal_payload[0]
+            action_to_play = get_max_goodness(terminal_payload)
+        elif len(gainers) >= 1:
+            action_to_play = get_max_goodness(gainers)
         elif len(terminal_draw) >= 1:
-            action_to_play = terminal_draw[0]
+            action_to_play = get_max_goodness(terminal_draw)
         elif len(action_cards) >= 1:
-            action_to_play = action_cards[0]
+            action_to_play = get_max_goodness(action_cards)
 
-        return action_to_play
+        return action_to_play, None
 
 
     def play_buy_phase(self):
         # Play treasures
         treasures = PlayHelper.get_treasures(self.hand)
         for treasure in treasures:
-            self.play_card(treasure)
+            if Card.ATTACK in treasure.get_types():
+                self.react_opposing_hand("Attack")
+            self.play_card(treasure, None)
 
         self.buy_cards()
 
+
     def buy_cards(self):
-        supply = self.game.supply
-
-
         card_to_buy = ""
-        if (LOGGING):
+        if LOGGING:
             print "{ $%d and %d buys }" % (self.turn_info.money, self.turn_info.buys)
-        while (self.turn_info.buys >= 1 and card_to_buy is not None):
-            card_to_buy = self.get_card_to_buy(self.turn_info.money, self.turn_info.buys)
+        self.meta_stats.add_money_output(self.turn_info.money)
+        while self.turn_info.buys >= 1 and card_to_buy is not None:
+            self.pay_off_debt()
+            card_to_buy = self.get_card_to_buy(self.turn_info.money, self.turn_info.buys, False, "Normal", self.turn_info.potions)
             if card_to_buy is not None:
                 self.buy_card(card_to_buy)
 
 
+    def pay_off_debt(self):
+        debt_to_pay_off = 0
+        if self.debt > 0:
+            if self.turn_info.money > 0:
+                if self.debt <= self.turn_info.money:
+                    debt_to_pay_off = self.debt
+                else:
+                    debt_to_pay_off = self.turn_info.money
+            else:
+                return
+
+        if LOGGING and debt_to_pay_off > 0:
+            print "%s paying off %s debt (%d remaining)..." % (self.player_name, debt_to_pay_off, self.debt - debt_to_pay_off)
+
+        self.debt -= debt_to_pay_off
+        self.turn_info.money -= debt_to_pay_off
 
 
-
-    def get_card_to_buy(self, money, buys, forced = False):
+    def get_card_to_buy(self, money, buys, forced = False, gain_type = "Normal", potions = 0):
+        '''
+        Forced means that you have to buy something with the $ you've been given (i.e. Haggler or Workshop)
+        gain_type can be passed in order to tell the recipient what type of logic to use, i.e. "Ironworks"
+        '''
         supply = self.game.supply
 
+
+        if gain_type == "Normal":
+            ignore_debt = False
+        else:
+            ignore_debt = True
+
+
         while (self.turn_info.buys >= 1):
-            if self.can_buy("Province", money) and get_total_economy(self) >= 18:
+            if self.can_buy("Province", money, ignore_debt) and get_total_economy(self) >= 18:
                 return "Province"
-            elif self.can_buy("Duchy", money) and get_pile_size("Province", supply) <= 5:
+            elif self.can_buy("Duchy", money, ignore_debt) and get_pile_size("Province", supply) <= 5:
                 return "Duchy"
-            elif self.can_buy("Gold", money):
+            elif self.can_buy("Estate", money, ignore_debt) and get_pile_size("Province", supply) <= 2:
+                return "Estate"
+            elif self.can_buy("Gold", money, ignore_debt):
                 return "Gold"
-            elif self.can_buy("Silver", money):
+            elif self.can_buy("Silver", money, ignore_debt):
                 return "Silver"
             else:
                 if forced:
-                    if self.can_buy("Copper", money):
+                    if self.can_buy("Copper", money, True):
                         return "Copper"
-                    elif self.can_buy("Estate", money):
+                    elif self.can_buy("Estate", money, True):
                         return "Estate"
-                    elif self.can_buy("Curse", money):
+                    elif self.can_buy("Curse", money, True):
                         return "Curse"
+                    else:
+                        return None
                 else:
                     return None
 
 
 
-    def can_buy(self, name, money):
+    def can_buy(self, name, money, ignore_debt = False, potions = 0):
+        if not ignore_debt and self.debt > 0:
+            return False
+
+
         if name in self.game.supply.supply_piles.keys() and len(self.game.supply.supply_piles[name]) >= 1:
             card = self.game.supply.supply_piles[name][0]
             cost = card.get_cost(reduction=self.turn_info.get_reduction(card.get_types()))
-            if money >= cost:
+            potion_cost = card.get_potion_cost()
+
+            if ignore_debt: #Okay this is a lame assumption, but if the gain ignores debt, assume that it can't gain a card that has debt
+                #Possible TODO is to decouple buy and gain logic more
+                if card.get_debt() > 0:
+                    return False
+
+            if money >= cost and potions >= potion_cost:
                 return True
             else:
                 return False
@@ -187,13 +254,33 @@ class Player(object):
 
         if (LOGGING):
             print "Buying: %s" % purchased_card.get_name()
+            if purchased_card.get_debt() > 0:
+                print "Taking on %s debt...." % purchased_card.get_debt()
+
+        purchased_card_cost = purchased_card.get_cost(reduction=self.turn_info.get_reduction(purchased_card.get_types()))
+
+        overpay_amount = min([self.turn_info.get_overpay(), self.turn_info.money - purchased_card_cost])
 
         purchased_card.do_on_buy(self.game, self, self.opposing_player)
+        if overpay_amount > 0:
+            if LOGGING:
+                print "Overpaying: $%d" % (overpay_amount)
+            purchased_card.do_overpay(self, self.opposing_player, overpay_amount)
+
+        self.do_on_buy_checks(purchased_card)
+        self.debt += purchased_card.get_debt()
 
         self.gain_card(card_name)
 
         self.turn_info.buys -= 1
-        self.turn_info.money -= purchased_card.get_cost(reduction=self.turn_info.get_reduction(purchased_card.get_types()))
+        self.turn_info.money -= purchased_card_cost
+        self.turn_info.potions -= purchased_card.get_potion_cost()
+        self.turn_info.set_overpay(0)
+
+    def do_on_buy_checks(self, purchased_card):
+        do_haggler(self, purchased_card)
+        do_goons(self)
+
 
     def topdeck_card(self, card):
         if LOGGING:
@@ -217,14 +304,26 @@ class Player(object):
                 elif location == "hand":
                     self.hand.append(gained_card)
 
+                self.do_on_gain_checks(gained_card)
+
             #Post-gain, remove the card from the supply
             self.game.supply.supply_piles[card_name] = self.game.supply.supply_piles[card_name][1:]
 
+        return gained_card #If information about the gained card is needed, return it
+
+    def do_on_gain_checks(self, purchased_card):
+        do_groundskeeper(self, purchased_card)
+
+    def react_opposing_hand(self, event_type):
+        for card in self.opposing_player.hand:
+            card.react_card(self.game, self.opposing_player, self, event_type)
 
     def cleanup(self):
         self.print_all_areas()
 
         self.turn_info.reset()
+
+        self.meta_stats.add_attacks_in_play(get_attacks_in_play(self))
 
         self.cleanup_durations()
 
@@ -267,12 +366,16 @@ class Player(object):
             print "Discarding cards from duration area because they're done:", map(lambda x: x.get_name(), cards_to_discard_from_duration)
 
 
-    def play_card(self, card):
+    def play_card(self, card, play_instruction = None, play_location = "hand"):
         if LOGGING:
             print "Playing: %s " % card.get_name()
-        self.hand.remove(card)
-        card.play_card(self.game, self, self.opposing_player)
-        self.play_area.append(card)
+        if play_location == "hand":
+            self.hand.remove(card)
+
+        if play_location != "throned":
+            self.play_area.append(card)
+        card.play_card(self.game, self, self.opposing_player, play_instruction)
+
 
     def blocks_attacks(self):
         """
@@ -329,17 +432,19 @@ class Player(object):
             self.game.trash.append(card)
 
     def discard_card(self, card, location = "hand"):
-        should_discard = card.on_discard(self.game, self, self.opposing_player)
-        if should_discard:
-            if LOGGING:
-                print "%s Discarding %s" % (self.player_name, card.get_name())
-            if location == "hand":
-                self.hand.remove(card)
-            elif location == "deck":
-                # It is a revealed card, and the responsibility of the caller to not perform shenanigans
-                pass
+        if LOGGING:
+            print "%s Discarding %s" % (self.player_name, card.get_name())
+        if location == "hand":
+            self.hand.remove(card)
+        elif location == "deck":
+            # It is a revealed card, and the responsibility of the caller to not perform shenanigans
+            pass
 
-            self.discard.append(card)
+        card.on_discard(self.game, self, self.opposing_player)
+
+        self.discard.append(card)
+
+
 
 
     def get_all_cards(self):
@@ -351,7 +456,7 @@ class Player(object):
         vp_counter = 0
         for card in all_cards:
             vp_counter += card.get_victory_points(self, self.opposing_player)
-        return vp_counter
+        return vp_counter + self.victory_chips
 
     def get_cards_in_hand_by_name(self):
         return map(lambda x: x.get_name(), self.hand)

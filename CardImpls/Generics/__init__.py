@@ -7,3 +7,5 @@ import Duchy
 import Gold
 import Province
 import Silver
+import Platinum
+import Colony

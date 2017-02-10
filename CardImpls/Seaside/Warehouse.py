@@ -35,3 +35,9 @@ class Warehouse(Card):
 
     def get_categories(self):
         return [Card.SIFTER]
+
+
+    def can_play_for_benefit(self, game, player, opposing_player):
+        if (len(player.deck) + len(player.discard)) <= 2:
+            return False
+        return True

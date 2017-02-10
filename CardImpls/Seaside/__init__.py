@@ -4,3 +4,5 @@ import Warehouse
 import FishingVillage
 import Wharf
 import Caravan
+import SeaHag
+import Explorer

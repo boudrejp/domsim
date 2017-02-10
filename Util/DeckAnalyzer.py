@@ -55,6 +55,15 @@ def get_total_economy(player):
 
     return sum(map(economy, all_cards))
 
+
+def get_attacks_in_play(player):
+    attacks_in_play = 0
+    for card in player.play_area:
+        if Card.ATTACK in card.get_types():
+            attacks_in_play += 1
+    return attacks_in_play
+
+
 def get_total_draw(player):
     ### Does not support draw-to-x, includes how many cards the deck draws in total
     all_cards = player.get_all_cards()

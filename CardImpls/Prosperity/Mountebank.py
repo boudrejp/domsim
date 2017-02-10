@@ -37,4 +37,4 @@ class Mountebank(Card):
         return 9
 
     def get_categories(self):
-        return [Card.TERMINAL_PAYLOAD_STACKING]
+        return [Card.JUNKER]
