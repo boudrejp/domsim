@@ -35,7 +35,7 @@ class ThroneRoom(Card):
                 self.duration_finished = False
 
     def duration_card(self, game, player, opposing_player):
-        self.duration_attachment.duration_card()
+        self.duration_attachment.duration_card(game, player, opposing_player)
         self.duration_finished = True if self.duration_attachment.should_duration() else False
 
 

@@ -2,7 +2,9 @@ __author__ = 'breppert'
 
 import EngineMan
 import CardTestingPlayer
-import WharfPlayer
+import MoneyMan
 import ClassicDurationEngine
-import ClassicDurationEngine2
-import StandardEngine
+import SeaEngine
+from DoubleForager import *
+from HumanPlayer import *
+import VillageEngine

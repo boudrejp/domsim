@@ -6,15 +6,15 @@ from Util.HandHelper import *
 from Util.DeckAnalyzer import *
 from Util.SupplyAnalyzer import *
 
-class Caravan(Card):
+class Lighthouse(Card):
     def __init__(self):
         self.duration_finished = False
 
     def get_name(self):
-        return "Caravan"
+        return "Lighthouse"
 
     def get_cost(self, reduction = 0):
-        return max([0, 4 - reduction])
+        return max([0, 2 - reduction])
 
     def get_types(self):
         return [Card.ACTION, Card.DURATION]
@@ -22,12 +22,12 @@ class Caravan(Card):
 
     def play_card(self, game, player, opposing_player, play_type = None):
         self.duration_finished = False
-        player.draw_card()
+        player.turn_info.actions += 1
+        player.turn_info.add_money(1)
 
     def duration_card(self, game, player, opposing_player):
-        player.draw_card()
+        player.turn_info.add_money(1)
         self.duration_finished = True
-
 
     def should_duration(self):
         return not self.duration_finished
@@ -35,15 +35,15 @@ class Caravan(Card):
     def is_terminal(self):
         return False
 
-    def is_cantrip(self):
+    def is_village(self):
         return True
 
-    def draws(self, hand = None):
-        return 0.5
+    def economy(self):
+        return 1.5
 
     ### Subjective information ###
     def card_goodness(self):
-        return 5
+        return 3
 
     def get_categories(self):
-        return [Card.NONTERMINAL_DRAW]
+        return [Card.ECONOMY]

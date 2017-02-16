@@ -24,6 +24,7 @@ class Herald(Card):
         if len(revealed_cards) == 1:
             revealed_card = revealed_cards[0]
             if Card.ACTION in revealed_card.get_types():
+                player.turn_info.actions += 1
                 player.play_card(revealed_card, None, "deck")
             else:
                 player.topdeck_card(revealed_card)

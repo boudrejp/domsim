@@ -18,6 +18,18 @@ for i in range(RUNS):
         print i, "runs done...."
 
 print "=" * 20
-print "Jacker wins: %s" % winner_list.count("Archibald")
-print "Mariner wins: %s" % winner_list.count("Wiley")
+print "Archibald wins: %s" % winner_list.count("Archibald")
+print "Wiley wins: %s" % winner_list.count("Wiley")
 print "Ties: %s" % winner_list.count("Tie!")
+
+
+'''
+print p2stats.get_average_cards_trashed()
+
+print p2stats.get_average_money_output()
+
+print p2stats.get_average_coppers_trashed()
+print p2stats.get_average_estates_trashed()
+'''
+#print p1stats.get_open_number_hit_percentage()
+#print p1stats.get_open_number_hit_twice_percentage()

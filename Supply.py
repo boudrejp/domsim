@@ -12,12 +12,23 @@ from CardImpls.Empires import *
 from CardImpls.Alchemy import *
 from CardImpls.Cornucoppia import *
 from CardImpls.Guilds import *
+from CardImpls.Promos import *
+from random import shuffle
+from Card import *
+from Config import *
 
 class Supply:
-    def __init__(self):
+    def __init__(self, use_random_piles = False):
         self.supply_piles = {}
-        self.__setup_always__()
         self.__setup_kingdom_piles__()
+        if use_random_piles:
+            self.__cull_to_actual_size__()
+
+        self.print_supply()
+
+        self.__setup_always__()
+        self.__setup_event_piles__()
+
 
     def __setup_always__(self):
         self._create_pile(8, Estate.Estate())
@@ -31,6 +42,41 @@ class Supply:
         self._create_pile(10, Curse.Curse())
 
         self._create_pile(14, Potion.Potion())
+
+        self._create_pile(14, Platinum.Platinum())
+        self._create_pile(8, Colony.Colony())
+
+        self.__create_ruins__()
+
+
+    def print_supply(self):
+        if LOGGING:
+            print "Supply: %s" % self.supply_piles.keys()
+
+    def __cull_to_actual_size__(self):
+        piles = 0
+        all_supply_piles = self.supply_piles.keys()
+
+        shuffle(all_supply_piles)
+
+        cards_to_include = []
+        for i in range(10):
+            cards_to_include.append(self.supply_piles[all_supply_piles[i]][0])
+
+
+        self.supply_piles = {}
+        for card in cards_to_include:
+            pile_size = 10 if Card.VICTORY not in card.get_types() else 8
+            self._create_pile(pile_size, card)
+
+    def __create_ruins__(self):
+        ruins_cards = [AbandonedMine.AbandonedMine(), RuinedVillage.RuinedVillage(), RuinedMarket.RuinedMarket(), RuinedLibrary.RuinedLibrary(), Survivors.Survivors()]
+        for i in range(10):
+            shuffle(ruins_cards)
+            self.supply_piles["Ruin"] = []
+            self.supply_piles["Ruin"].append(ruins_cards[0])
+
+
 
 
     def _create_pile(self, number, object):
@@ -70,8 +116,6 @@ class Supply:
         self._create_pile(10, Forager.Forager())
         self._create_pile(8, SilkRoad.SilkRoad())
         self._create_pile(8, Gardens.Gardens())
-        self._create_pile(14, Platinum.Platinum())
-        self._create_pile(8, Colony.Colony())
         self._create_pile(10, Oasis.Oasis())
         self._create_pile(8, Tunnel.Tunnel())
         self._create_pile(10, Cartographer.Cartographer())
@@ -94,6 +138,21 @@ class Supply:
         self._create_pile(10, ThroneRoom.ThroneRoom())
         self._create_pile(10, ChariotRace.ChariotRace())
         self._create_pile(10, Explorer.Explorer())
+        self._create_pile(10, CityQuarter.CityQuarter())
+        self._create_pile(10, Engineer.Engineer())
+        self._create_pile(10, Artisan.Artisan())
+        self._create_pile(10, Vassal.Vassal())
+        self._create_pile(10, Lighthouse.Lighthouse())
+        self._create_pile(10, GhostShip.GhostShip())
+        self._create_pile(10, Moneylender.Moneylender())
+        self._create_pile(10, Golem.Golem())
+        self._create_pile(8, Mill.Mill())
+        self._create_pile(10, Bazaar.Bazaar())
+        self._create_pile(10, TreasureMap.TreasureMap())
+
+    def __setup_event_piles__(self):
+        self._create_pile(100, Summon.Summon())
+
 
     def get_non_empty_pile_names(self):
         non_empty_pile_names = []

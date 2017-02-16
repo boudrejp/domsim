@@ -51,6 +51,9 @@ class Sentry(Card):
     def sifts_from_deck(self):
         return True
 
+    def draws(self, hand = None):
+        return 1
+
     def is_terminal(self):
         return False
 

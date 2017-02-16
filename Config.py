@@ -1,6 +1,6 @@
 __author__ = 'breppert'
 
-LOGGING = True
+LOGGING = False
 DEEP_LOGGING = False
 
-RUNS = 100
+RUNS = 1000

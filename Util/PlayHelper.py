@@ -21,7 +21,7 @@ def get_actions_that_can_be_played_usefully(player):
             #  Cards that can't be meaningfully played should not be played
             if not card.can_play_for_benefit(player.game, player, player.opposing_player):
                 continue
-        cards.append(card)
+            cards.append(card)
     return cards
 
 
@@ -81,6 +81,13 @@ def get_throne_variants(hand):
             cards.append(card)
     return cards
 
+def get_cards_to_play_first(hand):
+    cards = []
+    for card in hand:
+        if card.should_play_first():
+            cards.append(card)
+    return cards
+
 def get_terminal_payload(hand):
     cards = []
     for card in hand:
@@ -107,5 +114,12 @@ def get_from_deck_sifters(hand):
     cards = []
     for card in hand:
         if card.sifts_from_deck():
+            cards.append(card)
+    return cards
+
+def get_nonterminal_actions(hand):
+    cards = []
+    for card in hand:
+        if not card.is_terminal():
             cards.append(card)
     return cards

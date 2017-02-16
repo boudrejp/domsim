@@ -1,29 +1,29 @@
 __author__ = 'breppert'
 
+
 from Card import Card
 
-class Quarry(Card):
+from CardImpls.Helper import *
+
+class RuinedVillage(Card):
     def __init__(self):
         pass
 
     def get_name(self):
-        return "Quarry"
+        return "Ruined Village"
 
     def get_cost(self, reduction = 0):
-        return max([0, 4 - reduction])
+        return max([0, 0 - reduction])
 
     def get_types(self):
-        return [Card.TREASURE]
+        return [Card.ACTION, Card.RUIN]
 
     def play_card(self, game, player, opposing_player, play_type = None):
-        player.turn_info.add_money(1)
-        player.turn_info.action_only_cost_reductions += 2
-
-    def economy(self):
-        return 1.2
+        pass
 
     def card_goodness(self):
-        return 4
+        return -30
 
     def get_categories(self):
-        return [Card.ECONOMY]
+        return [Card.JUNK]
+

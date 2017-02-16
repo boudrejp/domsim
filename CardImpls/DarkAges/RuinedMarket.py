@@ -1,30 +1,33 @@
 __author__ = 'breppert'
 
+
 from Card import Card
-from Config import *
 
+from CardImpls.Helper import *
 
-class Workshop(Card):
+class RuinedMarket(Card):
     def __init__(self):
         pass
 
     def get_name(self):
-        return "Workshop"
+        return "Ruined Market"
 
     def get_cost(self, reduction = 0):
-        return max([0, 3 - reduction])
+        return max([0, 0 - reduction])
 
     def get_types(self):
-        return [Card.ACTION]
+        return [Card.ACTION, Card.RUIN]
 
     def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
-
-        card_to_gain = player.get_card_to_buy(4, 1, True, "Workshop")
-        player.gain_card(card_to_gain, "discard")
+        player.turn_info.buys += 1
 
     def card_goodness(self):
-        return 2
+        return -10
+
+    def is_terminal(self):
+        return True
 
     def get_categories(self):
-        return [Card.GAINER]
+        return [Card.JUNK]
+

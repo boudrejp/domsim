@@ -28,20 +28,14 @@ class Explorer(Card):
         else:
             player.gain_card("Silver", "hand")
 
-
-    def can_play_for_benefit(self, game, player, opposing_player):
-        if get_total_cards_wanted_to_trash_from_hand(self, player) >= 2:
-            return True
-        else:
-            return False
-
+    def economy(self):
+        return 2
 
     def is_terminal(self):
         return True
-
 
     def card_goodness(self):
         return 5
 
     def get_categories(self):
-        return [Card.TRASHER]
+        return [Card.GAINER, Card.ECONOMY]

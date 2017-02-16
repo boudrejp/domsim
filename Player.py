@@ -20,7 +20,7 @@ class Player(object):
     Contains the deck, discard, hand, and (various) set aside cards for a player
     '''
 
-    def __init__(self, game, player_name, starting_cards, player_stats):
+    def __init__(self, game, player_name, starting_cards, player_stats, force_starting_hand = None):
         self.game = game
         self.player_name = player_name
         self.deck = starting_cards
@@ -29,11 +29,12 @@ class Player(object):
         self.hand = []
         self.play_area = []
         self.duration_area = []
+        self.set_aside_area = []
 
         self.victory_chips = 0
         self.debt = 0
 
-        self.draw_starting_hand()
+        self.draw_starting_hand(force_starting_hand=force_starting_hand)
         self.turn_info = TurnInfo()
 
         self.opposing_player = None
@@ -47,7 +48,6 @@ class Player(object):
     def play_turn(self):
         if LOGGING:
             print "Starting hand:", self.print_hand()
-
 
         self.play_action_phase()
         self.play_buy_phase()
@@ -79,6 +79,7 @@ class Player(object):
             card.duration_card(self.game, self, self.opposing_player)
 
     def play_action_phase(self):
+        self.resolve_set_aside_area()
         self.play_durations()
 
         while (self.turn_info.actions >= 1):
@@ -92,10 +93,14 @@ class Player(object):
                 else:
                     break
 
+    def resolve_set_aside_area(self):
+        for card in self.set_aside_area:
+            card.call_from_set_aside(self.game, self, self.opposing_player)
 
     def get_action_card_to_play_next(self):
         action_cards = PlayHelper.get_actions_that_can_be_played_usefully(self)
 
+        cards_to_play_first = PlayHelper.get_cards_to_play_first(action_cards)
         doublers = PlayHelper.get_throne_variants(action_cards)
         villages = PlayHelper.get_villages(action_cards)
         cantrips = PlayHelper.get_cantrips(action_cards)
@@ -105,6 +110,7 @@ class Player(object):
         sifters = PlayHelper.get_sifters(action_cards)
         gainers = PlayHelper.get_gainers(action_cards)
         from_deck_sifters = PlayHelper.get_from_deck_sifters(action_cards)
+        nonterminal_actions = PlayHelper.get_nonterminal_actions(action_cards)
 
         #current basic play order:
         # 0) Sifters that sift the deck
@@ -118,7 +124,9 @@ class Player(object):
         # 8) any other actions
 
         action_to_play = None
-        if len(doublers) >= 1:
+        if len(cards_to_play_first) >= 1:
+            action_to_play = get_max_goodness(cards_to_play_first)
+        elif len(doublers) >= 1:
             action_to_play = get_max_goodness(doublers)
         elif len(from_deck_sifters) >= 1:
             action_to_play = get_max_goodness(from_deck_sifters)
@@ -130,6 +138,8 @@ class Player(object):
             action_to_play = get_max_goodness(cantrips)
         elif self.turn_info.actions >= 2 and len(terminal_draw) >= 1:
             action_to_play = get_max_goodness(terminal_draw)
+        elif len(nonterminal_actions) >= 1:
+            action_to_play = get_max_goodness(nonterminal_actions)
         elif len(sifters) >= 1:
             action_to_play = get_max_goodness(sifters)
         elif len(terminal_payload) >= 1:
@@ -140,6 +150,7 @@ class Player(object):
             action_to_play = get_max_goodness(terminal_draw)
         elif len(action_cards) >= 1:
             action_to_play = get_max_goodness(action_cards)
+
 
         return action_to_play, None
 
@@ -256,6 +267,8 @@ class Player(object):
             print "Buying: %s" % purchased_card.get_name()
             if purchased_card.get_debt() > 0:
                 print "Taking on %s debt...." % purchased_card.get_debt()
+                self.debt += purchased_card.get_debt()
+                self.pay_off_debt()
 
         purchased_card_cost = purchased_card.get_cost(reduction=self.turn_info.get_reduction(purchased_card.get_types()))
 
@@ -268,9 +281,9 @@ class Player(object):
             purchased_card.do_overpay(self, self.opposing_player, overpay_amount)
 
         self.do_on_buy_checks(purchased_card)
-        self.debt += purchased_card.get_debt()
 
-        self.gain_card(card_name)
+        if not purchased_card.is_event():
+            self.gain_card(card_name)
 
         self.turn_info.buys -= 1
         self.turn_info.money -= purchased_card_cost
@@ -303,6 +316,8 @@ class Player(object):
                     self.topdeck_card(gained_card)
                 elif location == "hand":
                     self.hand.append(gained_card)
+                elif location == "set aside":
+                    pass
 
                 self.do_on_gain_checks(gained_card)
 
@@ -366,7 +381,12 @@ class Player(object):
             print "Discarding cards from duration area because they're done:", map(lambda x: x.get_name(), cards_to_discard_from_duration)
 
 
+    def get_play_instruction(self, card):
+        return None
+
     def play_card(self, card, play_instruction = None, play_location = "hand"):
+        play_instruction = self.get_play_instruction(card)
+
         if LOGGING:
             print "Playing: %s " % card.get_name()
         if play_location == "hand":
@@ -382,6 +402,8 @@ class Player(object):
         TODO: Return True if Moat in hand (and revealed), or Champion down
         """
         if map(lambda x: x.get_name(), self.hand).count("Moat") >= 1:
+            return True
+        if map(lambda x: x.get_name(), self.duration_area).count("Lighthouse") >= 1:
             return True
         return False
 
@@ -413,14 +435,31 @@ class Player(object):
         else:
             return False
 
-    def draw_starting_hand(self):
+    def draw_starting_hand(self, force_starting_hand = None):
         for i in range(5):
             self.draw_card(during_cleanup=True)
+
+        if force_starting_hand is None:
+            pass
+        else:
+            while (force_starting_hand != self.get_cards_in_hand_by_name().count("Copper")):
+                self.deck += self.hand
+                self.hand = []
+                shuffle(self.deck)
+                for i in range(5):
+                    self.draw_card(during_cleanup=True)
 
 
     def trash_card(self, card, location = "hand"):
         should_trash = card.on_trash(self.game, self, self.opposing_player)
         if should_trash:
+            self.meta_stats.increment_trashed_cards()
+            if card.get_name() == "Copper":
+                self.meta_stats.increment_trashed_coppers()
+            elif card.get_name() == "Estate":
+                self.meta_stats.increment_trashed_estates()
+
+
             if LOGGING:
                 print "%s Trashing %s" % (self.player_name, card.get_name())
             if location == "hand":
@@ -428,8 +467,12 @@ class Player(object):
             elif location == "deck":
                 ## This means it's a revealed card, and it is the responsibility of the caller to not put the card back anywhere
                 pass
+            elif location == "play_area":
+                self.play_area.remove(card)
 
             self.game.trash.append(card)
+            return True
+        return False
 
     def discard_card(self, card, location = "hand"):
         if LOGGING:

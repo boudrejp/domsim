@@ -22,23 +22,11 @@ class State:
 
 
         for i in range(2):
-            all_cards.append(Curse.Curse())
-        for i in range(7):
-            all_cards.append(Copper.Copper())
-        for i in range(2):
-            all_cards.append(Mountebank.Mountebank())
+            all_cards.append(Moat.Moat())
         for i in range(1):
-            all_cards.append(Gold.Gold())
-        for i in range(2):
             all_cards.append(Silver.Silver())
-        for i in range(5):
-            all_cards.append(Smithy.Smithy())
-        for i in range(6):
-            all_cards.append(Festival.Festival())
-        for i in range(2):
-            all_cards.append(Market.Market())
-        for i in range(5):
-            all_cards.append(Cartographer.Cartographer())
+        for i in range(1):
+            all_cards.append(Goons.Goons())
 
 
         return all_cards

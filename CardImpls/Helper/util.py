@@ -5,10 +5,12 @@ from Util.DeckAnalyzer import *
 
 #TODO: Support ruins in these utility functions
 
-def discard_card_from_hand(player):
+def discard_card_from_hand(player, return_only = False):
     '''
     discards cards from the hand
-    '''
+
+]    If return_only is set to True, doesn't actually perform topdecking but only returns list of cards to topdeck in order
+]    '''
     if len(player.hand) == 0:
         return False
 
@@ -58,6 +60,12 @@ def discard_card_from_hand(player):
         if card.is_cantrip() and Card.NONTERMINAL_DRAW not in card.get_categories():
             cantrip_card_hand_positions.append(i)
 
+
+    ruins_cards_hand_positions = []
+    for i, card in enumerate(player.hand):
+        if Card.JUNK in card.get_categories():
+            ruins_cards_hand_positions.append(i)
+
     action_card_position_to_discard = None
 
 
@@ -81,6 +89,7 @@ def discard_card_from_hand(player):
     # 1) Curse (if no trasher in hand)
     # 2) Estate (if no trasher in hand)
     # 3) Other green cards
+    # 3.5) Ruins
     # 4) Copper
     # 5) Estate (even if trasher in hand)
     # 6) Silver
@@ -95,6 +104,8 @@ def discard_card_from_hand(player):
         discard_position = cards_by_name.index("Estate")
     elif len(victory_card_hand_positions) >= 1:
         discard_position = victory_card_hand_positions[0]
+    elif len(ruins_cards_hand_positions) >= 1 and non_treasures_in_hand_to_trash > non_treasure_trashes_available:
+        discard_position = ruins_cards_hand_positions[0]
     elif "Copper" in cards_by_name:
         discard_position = cards_by_name.index("Copper")
     elif "Estate" in cards_by_name:
@@ -108,7 +119,10 @@ def discard_card_from_hand(player):
     else:
         discard_position = 0
 
-    player.discard_card(player.hand[discard_position], "hand")
+    if return_only:
+        return player.hand[discard_position]
+    else:
+        player.discard_card(player.hand[discard_position], "hand")
 
     return True
 
@@ -188,7 +202,7 @@ def want_to_trash_card(trashing_card, card, player):
         return True
 
     if should_trash_trashers(player):
-        if trashing_card != card and Card.TRASHER in card.get_categories() and card.get_name() != "Sentry":
+        if trashing_card.trashes_estates() and trashing_card != card and Card.TRASHER in card.get_categories() and card.get_name() != "Sentry":
             return True
 
     return False
@@ -203,7 +217,10 @@ def should_trash_trashers(player):
     else:
         return False
 
-def topdeck_cards(player, cards_to_topdeck):
+def topdeck_cards(player, cards_to_topdeck, return_only = False):
+    '''
+    If return_only is set to True, doesn't actually perform topdecking but only returns list of cards to topdeck in order
+    '''
     if len(cards_to_topdeck) == 0:
         return
 
@@ -215,6 +232,9 @@ def topdeck_cards(player, cards_to_topdeck):
     treasures_to_topdeck = []
     other_to_dopdeck = []
 
+    if "Sea Hag" in map(lambda x: x.get_name(), cards_to_topdeck):
+        asd = 23
+
     for card in cards_to_topdeck:
         if Card.VILLAGE in card.get_categories():
             villages_to_topdeck.append(card)
@@ -224,9 +244,9 @@ def topdeck_cards(player, cards_to_topdeck):
             cantrips_to_topdeck.append(card)
         elif Card.TERMINAL_DRAW in card.get_categories():
             terminal_draw_to_topdeck.append(card)
-        elif Card.ACTION in card.get_categories():
+        elif Card.ACTION in card.get_types():
             actions_to_topdeck.append(card)
-        elif Card.TREASURE in card.get_categories():
+        elif Card.TREASURE in card.get_types():
             treasures_to_topdeck.append(card)
         else:
             other_to_dopdeck.append(card)
@@ -236,6 +256,14 @@ def topdeck_cards(player, cards_to_topdeck):
 
     topdecking_priorities.reverse() # Because of how top-decking works
 
+    topdecking_card_order = []
     for topdeck_list in topdecking_priorities:
-        for card in topdeck_list:
+            for card in topdeck_list:
+                topdecking_card_order.append(card)
+
+
+    if return_only:
+        return topdecking_card_order
+    else:
+        for card in topdecking_card_order:
             player.topdeck_card(card)

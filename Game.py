@@ -13,8 +13,8 @@ class Game:
     Contains everything needed for a two player game of Dominion
     '''
 
-    def __init__(self, player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one = None, starting_cards_two = None):
-        self.__setup__(player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one, starting_cards_two)
+    def __init__(self, player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one = None, starting_cards_two = None, force_starting_hand = None):
+        self.__setup__(player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one, starting_cards_two, force_starting_hand)
         self.supply = Supply()
         self.turn_number = 1
         self.trash = []
@@ -55,8 +55,17 @@ class Game:
 
 
     def game_is_over(self):
-        if len(self.supply.supply_piles["Province"]) == 0:
+        if len(self.supply.supply_piles["Province"]) == 0 or len(self.supply.supply_piles["Colony"]) == 0:
             return True
+
+        empty_piles = 0
+        for pile in self.supply.supply_piles:
+            if len(self.supply.supply_piles[pile]) == 0:
+                empty_piles += 1
+
+        if empty_piles >= 3:
+            return True
+
         return False
 
     def get_winner(self, first_player, players_played_this_turn):
@@ -101,16 +110,16 @@ class Game:
 
         return starting_cards
 
-    def __setup__(self, player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one, starting_cards_two):
+    def __setup__(self, player_one_name, player_two_name, player_one_class, player_two_class, player_one_stats, player_two_stats, starting_cards_one, starting_cards_two, force_starting_hand):
         self.Trash = []
         if starting_cards_one is None:
-            self.player_one = player_one_class(self, player_one_name, self.get_starting_cards(), player_one_stats)
+            self.player_one = player_one_class(self, player_one_name, self.get_starting_cards(), player_one_stats, force_starting_hand)
         else:
-            self.player_one = player_one_class(self, player_one_name, starting_cards_one, player_one_stats)
+            self.player_one = player_one_class(self, player_one_name, starting_cards_one, player_one_stats, force_starting_hand)
         if starting_cards_two is None:
-            self.player_two = player_two_class(self, player_two_name, self.get_starting_cards(), player_two_stats)
+            self.player_two = player_two_class(self, player_two_name, self.get_starting_cards(), player_two_stats, force_starting_hand)
         else:
-            self.player_two = player_two_class(self, player_two_name, starting_cards_two, player_two_stats)
+            self.player_two = player_two_class(self, player_two_name, starting_cards_two, player_two_stats, force_starting_hand)
 
         self.player_one.add_opposing_player(self.player_two)
         self.player_two.add_opposing_player(self.player_one)

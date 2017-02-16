@@ -3,15 +3,15 @@ __author__ = 'breppert'
 from Card import Card
 
 
-class BorderVillage(Card):
+class Bazaar(Card):
     def __init__(self):
         pass
 
     def get_name(self):
-        return "Border Village"
+        return "Bazaar"
 
     def get_cost(self, reduction = 0):
-        return max([0, 6 - reduction])
+        return max([0, 5 - reduction])
 
     def get_types(self):
         return [Card.ACTION]
@@ -20,6 +20,7 @@ class BorderVillage(Card):
         player.turn_info.actions += 1
         for i in range(1):
             player.draw_card()
+        player.turn_info.add_money(1)
 
     def draws(self, hand = None):
         return 1
@@ -28,16 +29,7 @@ class BorderVillage(Card):
         return 1
 
     def card_goodness(self):
-        return 4
+        return 6
 
     def get_categories(self):
         return [Card.VILLAGE]
-
-    def do_on_gain(self, game, player, opposing_player):
-        card_to_gain = player.get_card_to_buy(
-            self.get_cost(reduction=player.turn_info.cost_reductions + player.turn_info.action_only_cost_reductions) - 1,
-            buys=1,
-            forced=True,
-            gain_type="Border Village")
-        player.gain_card(card_to_gain, "discard")
-        return True

@@ -41,7 +41,7 @@ class Patrol(Card):
         return True
 
     def draws(self, hand = None):
-        return 3
+        return 3.2
 
     def card_goodness(self):
         return 8

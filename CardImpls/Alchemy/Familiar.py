@@ -30,6 +30,8 @@ class Familiar(Card):
             opposing_player.gain_card("Curse")
 
 
+    def draws(self, hand = None):
+        return 1
 
 
     def is_terminal(self):

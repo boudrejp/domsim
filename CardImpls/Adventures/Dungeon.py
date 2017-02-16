@@ -40,7 +40,7 @@ class Dungeon(Card):
 
     ### Subjective information ###
     def card_goodness(self):
-        return 7
+        return 6.5
 
     def get_categories(self):
         return [Card.SIFTER]

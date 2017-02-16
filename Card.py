@@ -51,6 +51,9 @@ class Card (object):
     def get_debt(self):
         return 0
 
+    def is_event(self):
+        return False
+
     def can_overpay(self):
         return False
 
@@ -100,7 +103,15 @@ class Card (object):
     def can_play_for_benefit(self, game, player, opposing_player):
         #Returns True if the card can be usefully played. I.e. Junk Dealer will return False if no junk in hand.
         #Still needs to be implemented on many cards
+
+        #if Card.TERMINAL_DRAW in self.get_categories():
+        #    if len(player.deck) + len(player.discard) == 0:
+        #        return False
+
         return True
+
+    def call_from_set_aside(self, game, player, opposing_player):
+        pass
 
     #Some helper functions to help play order
     ####
@@ -149,12 +160,17 @@ class Card (object):
     def plus_buys(self):
         return 0
 
+    def should_play_first(self):
+        '''
+        Cards that benefit from being played early on in turns
+        '''
+        return False
+
     def card_goodness(self):
         '''
         Arbitrary, scale of 0-10, not sure if this is actually useful
         '''
         return 0
-
 
     def get_categories(self):
         return [] #This is potentially redundant to the above functions, but, uh, it won't hurt.

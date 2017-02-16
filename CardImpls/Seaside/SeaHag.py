@@ -21,7 +21,6 @@ class SeaHag(Card):
 
     def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
-        player.turn_info.add_money(2)
 
         if not opposing_player.blocks_attacks():
             top_opposing_player_cards = opposing_player.reveal_cards(1)

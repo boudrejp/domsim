@@ -5,37 +5,33 @@ from Card import Card
 
 from CardImpls.Helper import *
 
-class Goons(Card):
+class AbandonedMine(Card):
     def __init__(self):
         pass
 
     def get_name(self):
-        return "Goons"
+        return "Abandoned Mine"
 
     def get_cost(self, reduction = 0):
-        return max([0, 6 - reduction])
+        return max([0, 0 - reduction])
 
     def get_types(self):
-        return [Card.ACTION, Card.ATTACK]
+        return [Card.ACTION, Card.RUIN]
 
     def play_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.actions -= 1
-        player.turn_info.add_money(2)
-        player.turn_info.buys += 1
+        player.turn_info.add_money(1)
 
-        if not opposing_player.blocks_attacks():
-            while len(opposing_player.hand) >= 4:
-                discard_card_from_hand(opposing_player)
 
     def is_terminal(self):
         return True
 
     def card_goodness(self):
-        return 9
+        return -30
 
     def economy(self):
-        return 2
+        return 1
 
     def get_categories(self):
-        return [Card.TERMINAL_PAYLOAD_STACKING]
+        return [Card.JUNK, Card.ECONOMY]
 

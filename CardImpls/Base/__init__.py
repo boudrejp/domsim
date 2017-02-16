@@ -16,3 +16,6 @@ import Gardens
 import Witch
 import Festival
 import ThroneRoom
+import Artisan
+import Vassal
+import Moneylender

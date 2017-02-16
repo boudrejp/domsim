@@ -4,6 +4,7 @@ from Card import Card
 from Util.HandHelper import *
 from Util.DeckAnalyzer import *
 from Util.SupplyAnalyzer import *
+from CardImpls.Helper.util import *
 
 
 class JackOfAllTrades(Card):
@@ -52,7 +53,7 @@ class JackOfAllTrades(Card):
                 player.topdeck_card(revealed_card)
 
             #Otherwise discard unless it's a silver or better
-            elif revealed_card.get_name() in ["Copper", "Estate", "Curse"] or Card.ACTION in revealed_card.get_types():
+            elif revealed_card.get_name() in ["Copper", "Estate", "Curse"] or (Card.ACTION in revealed_card.get_types() and len(player.hand) < 5 and player.turn_info.actions < 1):
                 player.discard_card(revealed_card, "deck")
 
             else:
@@ -67,18 +68,7 @@ class JackOfAllTrades(Card):
         cards_in_hand_by_name = map(lambda x: x.get_name(), player.hand)
 
         #Trash a card from your hand
-        for i in range(1):
-            trash_target = None
-            if "Curse" in cards_in_hand_by_name:
-                trash_target = "Curse"
-            elif "Estate" in cards_in_hand_by_name:
-                trash_target = "Estate"
-
-            for card in player.hand:
-                if card.get_name() == trash_target:
-                    player.trash_card(card, "hand")
-                    break
-
+        trash_card_from_hand(self, player, False)
 
 
 
@@ -86,7 +76,13 @@ class JackOfAllTrades(Card):
 
     ### Subjective Information ###
     def card_goodness(self):
-        return 7
+        return 8.2
 
     def get_categories(self):
         return [Card.TERMINAL_DRAW, Card.GAINER, Card.TRASHER]
+
+    def trashes_estates(self):
+        return True
+
+    def trashes_coppers(self):
+        return False

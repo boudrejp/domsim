@@ -28,6 +28,8 @@ class Witch(Card):
         if not opposing_player.blocks_attacks():
             opposing_player.gain_card("Curse")
 
+    def draws(self, hand = None):
+        return 2
 
     def is_terminal(self):
         return True

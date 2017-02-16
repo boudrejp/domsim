@@ -6,8 +6,8 @@ from Util.SupplyAnalyzer import *
 from Util.DeckAnalyzer import *
 
 class EngineMan(Player):
-    def __init__(self, game, player_name, starting_cards, player_stats):
-        super(EngineMan, self).__init__(game,  player_name, starting_cards, player_stats)
+    def __init__(self, game, player_name, starting_cards, player_stats, force_starting_hand):
+        super(EngineMan, self).__init__(game,  player_name, starting_cards, player_stats, force_starting_hand)
 
 
     def get_card_to_buy(self, money, buys, forced = False, gain_type = "Normal", potions = 0):
