@@ -43,3 +43,9 @@ class Summon(Card):
         if self.set_aside_card is not None:
             player.turn_info.actions += 1
             player.play_card(self.set_aside_card, None, "set aside")
+
+    def get_set_aside_cards(self):
+        if self.set_aside_card is not None:
+            return [self.set_aside_card]
+        else:
+            return []

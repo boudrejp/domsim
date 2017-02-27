@@ -8,3 +8,5 @@ import SeaEngine
 from DoubleForager import *
 from HumanPlayer import *
 import VillageEngine
+import TreasureTrovePlayer
+import gsrNoSupportPlayer

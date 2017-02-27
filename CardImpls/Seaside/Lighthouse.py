@@ -25,7 +25,7 @@ class Lighthouse(Card):
         player.turn_info.actions += 1
         player.turn_info.add_money(1)
 
-    def duration_card(self, game, player, opposing_player):
+    def duration_card(self, game, player, opposing_player, play_type = None):
         player.turn_info.add_money(1)
         self.duration_finished = True
 

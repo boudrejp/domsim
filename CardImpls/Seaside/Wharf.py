@@ -27,7 +27,7 @@ class Wharf(Card):
             player.draw_card()
         player.turn_info.buys += 1
 
-    def duration_card(self, game, player, opposing_player):
+    def duration_card(self, game, player, opposing_player, play_type = None):
         for i in range(2):
             player.draw_card()
         player.turn_info.buys += 1

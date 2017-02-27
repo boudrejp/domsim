@@ -4,3 +4,4 @@ import Mountebank
 import Quarry
 import WorkersVillage
 import Goons
+import Monument

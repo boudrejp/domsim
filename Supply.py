@@ -48,6 +48,8 @@ class Supply:
 
         self.__create_ruins__()
 
+        print len(self.supply_piles.keys()) + 4
+
 
     def print_supply(self):
         if LOGGING:
@@ -149,6 +151,11 @@ class Supply:
         self._create_pile(8, Mill.Mill())
         self._create_pile(10, Bazaar.Bazaar())
         self._create_pile(10, TreasureMap.TreasureMap())
+        self._create_pile(10, TreasureTrove.TreasureTrove())
+        self._create_pile(10, Masterpiece.Masterpiece())
+        self._create_pile(10, Monument.Monument())
+        self._create_pile(10, Baker.Baker())
+        self._create_pile(10, CandlestickMaker.CandlestickMaker())
 
     def __setup_event_piles__(self):
         self._create_pile(100, Summon.Summon())

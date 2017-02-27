@@ -24,7 +24,7 @@ class Caravan(Card):
         self.duration_finished = False
         player.draw_card()
 
-    def duration_card(self, game, player, opposing_player):
+    def duration_card(self, game, player, opposing_player, play_type = None):
         player.draw_card()
         self.duration_finished = True
 

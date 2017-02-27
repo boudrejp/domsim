@@ -32,6 +32,7 @@ class Player(object):
         self.set_aside_area = []
 
         self.victory_chips = 0
+        self.coin_tokens = 0
         self.debt = 0
 
         self.draw_starting_hand(force_starting_hand=force_starting_hand)
@@ -76,7 +77,7 @@ class Player(object):
         for card in self.duration_area:
             if LOGGING:
                 print "Duration: %s" % card.get_name()
-            card.duration_card(self.game, self, self.opposing_player)
+            card.duration_card(self.game, self, self.opposing_player, self.get_play_instruction(card))
 
     def play_action_phase(self):
         self.resolve_set_aside_area()
@@ -165,11 +166,29 @@ class Player(object):
 
         self.buy_cards()
 
+    def use_coin_tokens(self, num_tokens):
+        '''
+        Some "wrong" logic that I prefer anyways, is that you can always use coin tokens during buy phase as the consumer.
+        You don't have to plan out your whole turn ahead of time, which makes it easier for everyone.
+        '''
+        if num_tokens > self.coin_tokens:
+            num_tokens = self.coin_tokens
+
+        if LOGGING and num_tokens > 0:
+            print "Using %d coin tokens..." % num_tokens
+
+        self.turn_info.money += num_tokens
+        self.coin_tokens -= num_tokens
+
 
     def buy_cards(self):
         card_to_buy = ""
         if LOGGING:
-            print "{ $%d and %d buys }" % (self.turn_info.money, self.turn_info.buys)
+            tokens_part = " (%d tokens)" % self.coin_tokens
+            info_string =  "{ $%d and %d buys }" % (self.turn_info.money, self.turn_info.buys)
+            if self.coin_tokens > 0:
+                info_string += tokens_part
+            print info_string
         self.meta_stats.add_money_output(self.turn_info.money)
         while self.turn_info.buys >= 1 and card_to_buy is not None:
             self.pay_off_debt()
@@ -385,7 +404,9 @@ class Player(object):
         return None
 
     def play_card(self, card, play_instruction = None, play_location = "hand"):
+        #TODO: Deprecate the old interface
         play_instruction = self.get_play_instruction(card)
+
 
         if LOGGING:
             print "Playing: %s " % card.get_name()
@@ -488,10 +509,20 @@ class Player(object):
         self.discard.append(card)
 
 
+    def get_all_set_aside_cards(self):
+        set_aside_cards = []
+        for card in self.set_aside_area:
+            set_aside_cards.append(card)
+            set_aside_cards += card.get_set_aside_cards()
+
+        for card in self.duration_area:
+            set_aside_cards += card.get_set_aside_cards()
+
+        return set_aside_cards
 
 
     def get_all_cards(self):
-        return self.hand + self.deck + self.discard + self.play_area + self.duration_area
+        return self.hand + self.deck + self.discard + self.play_area + self.duration_area + self.get_all_set_aside_cards()
 
 
     def get_total_vp(self):

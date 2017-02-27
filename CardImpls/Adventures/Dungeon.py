@@ -27,7 +27,7 @@ class Dungeon(Card):
         for i in range(2):
             discard_card_from_hand(player)
 
-    def duration_card(self, game, player, opposing_player):
+    def duration_card(self, game, player, opposing_player, play_type = None):
         self.play_card(game, player, opposing_player)
         self.duration_finished = True
 

@@ -60,12 +60,13 @@ class Amulet(Card):
             else:
                 player.turn_info.add_money(1)
 
-    def duration_card(self, game, player, opposing_player):
+    def duration_card(self, game, player, opposing_player, play_type = "Money"):
+        #Potential TODO is to make the duration logic more complicated (i.e. plan to play both Amulets for coin if one in hand)
         money_in_hand = get_treasures_dollars_in_hand(player.hand)
         another_amulet_in_hand = is_card_in_hand("Amulet", player.hand)
         cards_in_hand_by_name = player.get_cards_in_hand_by_name()
 
-        self.play_card(game, player, opposing_player)
+        self.play_card(game, player, opposing_player, play_type)
         player.turn_info.actions += 1
 
         self.duration_finished = True

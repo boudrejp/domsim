@@ -194,6 +194,7 @@ def want_to_trash_card(trashing_card, card, player):
     '''
     helper function to determine if you want to trash X card or not
     '''
+    TRASHERS_TO_KEEP_AROUND = ["Amulet", "Steward", "Sentry"]
 
     if trashing_card.trashes_estates() and (card.JUNK in card.get_types() or "Estate" == card.get_name()):
         return True
@@ -202,7 +203,7 @@ def want_to_trash_card(trashing_card, card, player):
         return True
 
     if should_trash_trashers(player):
-        if trashing_card.trashes_estates() and trashing_card != card and Card.TRASHER in card.get_categories() and card.get_name() != "Sentry":
+        if trashing_card.trashes_estates() and trashing_card != card and Card.TRASHER in card.get_categories() and card.get_name() not in TRASHERS_TO_KEEP_AROUND:
             return True
 
     return False

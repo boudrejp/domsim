@@ -70,11 +70,16 @@ class Card (object):
         '''
         pass
 
-    def duration_card(self, game, player, opposing_player):
+    def duration_card(self, game, player, opposing_player, play_type = None):
         pass
 
     def should_duration(self):
         return False
+
+
+    def get_set_aside_cards(self):
+        return []
+
 
     def react_card(self, game, player, opposing_player, event_type):
         pass
